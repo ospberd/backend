@@ -15,7 +15,7 @@ const express = require('express'),
         app.use('/api/demands', require('./demands.controller'));
         app.use('/api/turnovers', require('./turnovers.controller'));
         app.use('/api/reports', require('./reports.controller'));
-
+        app.use('/api/compositions', require('./compositions.controller'));
 
 
 //Слушание запросов на порту 3000, и в качестве каллбака функция, которая пишет в лог
