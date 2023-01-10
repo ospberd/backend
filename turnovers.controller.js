@@ -4,7 +4,8 @@ const auth = require('./middleware/auth');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const mysql = require("mysql2");
-const config = require("./config.js")
+const config = require("./config.js");
+const agree = require("./fields.description.js");
 const connection = mysql.createConnection({
     host: config.db.host,
     user: config.db.user,
@@ -98,7 +99,7 @@ function getById(req, res, next) {
              var TurnoverLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
              delete updateData.lines;}
         let sql = `INSERT INTO turnoversHead SET ?`;
-        connection.query(sql, [updateData], function (err, data) { 
+        connection.query(sql, [agree('turnoversHead',updateData)], function (err, data) { 
             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
             else { 
                 TurnoverLines.forEach((element) => {
@@ -106,7 +107,7 @@ function getById(req, res, next) {
                     element.headid = updateData.id ;
                     let sqll = `INSERT INTO turnoversLine SET ?`;
                     
-                    connection.query(sqll, element, function (err, data) { 
+                    connection.query(sqll, agree('turnoversLine',element), function (err, data) { 
                     if (err)  { res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)} }) 
                 }) 
             connection.commit();
@@ -129,7 +130,7 @@ function update(req, res, next) {
              var TurnoverLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
              delete updateData.lines;}
         let sql = `UPDATE turnoversHead SET ? WHERE id=?`;
-        connection.query(sql, [updateData, updateData.id], function (err, data) { 
+        connection.query(sql, [agree('turnoversHead',updateData), updateData.id], function (err, data) { 
             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
             else 
             {
@@ -150,12 +151,12 @@ function update(req, res, next) {
                         entry.headid = updateData.id;
                         entry.id = entry.id || uuidv4();
                         if (resultslines.findIndex(x => x.id == entry.id ) == -1) {
-                            connection.query('INSERT INTO  turnoversLine SET ?' ,[entry], function (err, data) {
+                            connection.query('INSERT INTO  turnoversLine SET ?' ,[agree('turnoversLine',entry)], function (err, data) {
                                 if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                             });
                            }
                            else{
-                            connection.query('UPDATE turnoversLine SET ? WHERE id=?' ,[entry, entry.id], function (err, data) {
+                            connection.query('UPDATE turnoversLine SET ? WHERE id=?' ,[agree('turnoversLine',entry), entry.id], function (err, data) {
                             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                         });
                        }

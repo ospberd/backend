@@ -4,7 +4,8 @@ const auth = require('./middleware/auth');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const mysql = require("mysql2");
-const config = require("./config.js")
+const config = require("./config.js");
+const agree = require("./fields.description.js");
 const connection = mysql.createConnection({
     host: config.db.host,
     user: config.db.user,
@@ -92,6 +93,7 @@ function create(req, res, next) {
         if (updateData.lines.length>0) {
              var DemandLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
              delete updateData.lines;}
+        updateData= agree('demandsHead',updateData) ;
         let sql = `INSERT INTO demandsHead SET ?`;
         connection.query(sql, [updateData], function (err, data) {
             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
@@ -101,7 +103,7 @@ function create(req, res, next) {
                     element.id = element.id || uuidv4();
                     element.headid = updateData.id ;
                     let sqll = `INSERT INTO demandsLine SET ?`;
-                    connection.query(sqll, element, function (err, data) { 
+                    connection.query(sqll, agree('demandsLine',element), function (err, data) { 
                         if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)} }) 
             }) 
             connection.commit();
@@ -126,7 +128,7 @@ function create(req, res, next) {
                 var DemandLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
                 delete updateData.lines;}
            let sql = `INSERT INTO demandsHead SET ?`;
-           connection.query(sql, [updateData], function (err, data) {
+           connection.query(sql, [agree('demandsHead',updateData)], function (err, data) {
                if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                else { 
    
@@ -138,7 +140,7 @@ function create(req, res, next) {
                        
                        element.headid = updateData.id ;
                        let sqll = `INSERT INTO demandsLine SET ?`;
-                       connection.query(sqll, element, function (err, data) { 
+                       connection.query(sqll, agree('demandsLine',element), function (err, data) { 
                            if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)} }) 
                }) 
                connection.commit();
@@ -161,7 +163,7 @@ function update(req, res, next) {
              var DemandLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
              delete updateData.lines;}
         let sql = `UPDATE demandsHead SET ? WHERE id=?`;
-        connection.query(sql, [updateData, updateData.id], function (err, data) { 
+        connection.query(sql, [agree('demandsHead',updateData), updateData.id], function (err, data) { 
             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
             else 
             {
@@ -182,12 +184,12 @@ function update(req, res, next) {
                         entry.headid = updateData.id;
                         entry.id = entry.id || uuidv4();
                         if (resultslines.findIndex(x => x.id == entry.id ) == -1) {
-                            connection.query('INSERT INTO  demandsLine SET ?' ,[entry], function (err, data) {
+                            connection.query('INSERT INTO  demandsLine SET ?' ,[agree('demandsLine',entry)], function (err, data) {
                                 if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                             });
                            }
                            else{
-                            connection.query('UPDATE demandsLine SET ? WHERE id=?' ,[entry, entry.id], function (err, data) {
+                            connection.query('UPDATE demandsLine SET ? WHERE id=?' ,[agree('demandsLine',entry), entry.id], function (err, data) {
                                 if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                             });
                            }
@@ -210,7 +212,7 @@ function update(req, res, next) {
              var DemandLines =  JSON.parse(JSON.stringify(updateData.lines)) ; 
              delete updateData.lines;}
         let sql = `UPDATE demandsHead SET ? WHERE id=?`;
-        connection.query(sql, [updateData, updateData.id], function (err, data) { 
+        connection.query(sql, [agree('demandsHead',updateData), updateData.id], function (err, data) { 
             if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
             else 
             {
@@ -234,12 +236,12 @@ function update(req, res, next) {
                         entry.headid = updateData.id;
                         entry.id = entry.id || uuidv4();
                         if (resultslines.findIndex(x => x.id == entry.id ) == -1) {
-                            connection.query('INSERT INTO  demandsLine SET ?' ,[entry], function (err, data) {
+                            connection.query('INSERT INTO  demandsLine SET ?' ,[fagree('demandsLine',entry)], function (err, data) {
                                 if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                             });
                            }
                            else{
-                            connection.query('UPDATE demandsLine SET ? WHERE id=?' ,[entry, entry.id], function (err, data) {
+                            connection.query('UPDATE demandsLine SET ? WHERE id=?' ,[agree('demandsLine',entry), entry.id], function (err, data) {
                                 if (err)  {res.statusCode = 409; connection.rollback(); return res.send(err.sqlMessage)}
                             });
                            }

@@ -4,7 +4,8 @@ const auth = require('./middleware/auth');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const mysql = require("mysql2");
-const config = require("./config.js")
+const config = require("./config.js");
+const agree = require("./fields.description.js");
 const connection = mysql.createConnection({
     host: config.db.host,
     user: config.db.user,
@@ -56,7 +57,7 @@ function create(req, res, next) {
         updateData.id = uuidv4();
         if (updateData.docdate == ''){ updateData.docdate = newDate };
         let sql = `INSERT INTO payments SET ?`;
-        connection.query(sql, [updateData], function (err, data) { 
+        connection.query(sql, [agree('payments',updateData)], function (err, data) { 
             if (err)  {res.statusCode = 409; {console.log(err.sqlMessage); return res.send(err.sqlMessage)}}
             else { res.statusCode = 201; res.send("Payment created")}  });   
  
@@ -69,7 +70,7 @@ function update(req, res, next) {
         let updateData=req.body;
         updateData.id = ""; delete updateData.id;
         let sql = `UPDATE payments SET ? WHERE id= ?`;
-        connection.query(sql, [updateData, id], function (err, data) {
+        connection.query(sql, [agree('payments',updateData), id], function (err, data) {
             if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
             else { res.statusCode = 201; res.send("Payment updated")}  });    
     }  else { res.status(403).send("Role is no permission")}        

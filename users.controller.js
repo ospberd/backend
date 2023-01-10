@@ -5,7 +5,8 @@ const auth = require('./middleware/auth');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const mysql = require("mysql2");
-const config = require("./config.js")
+const config = require("./config.js");
+const fd = require("./fields.description.js");
 const connection = mysql.createConnection({
     host: config.db.host,
     user: config.db.user,
@@ -88,7 +89,7 @@ function create(req, res, next) {
     updateData.id = uuidv4();
     let sql = `INSERT INTO users SET ?`;
     
-    connection.query(sql, [updateData], function (err, data)  { 
+    connection.query(sql, [agree('users',updateData)], function (err, data)  { 
             if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
             else { res.statusCode = 201; res.send("User created")}  });   
 }; 
@@ -101,7 +102,7 @@ function update(req, res, next) {
     updateData.password = ""; delete updateData.password;
     updateData.login = ""; delete updateData.login;
     let sql = `UPDATE users SET ? WHERE id= ?`;
-    connection.query(sql, [updateData, id], function (err, data) {
+    connection.query(sql, [agree('users',updateData), id], function (err, data) {
         if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
         else { res.statusCode = 202; res.send("User updated")}  });   
 
@@ -114,7 +115,7 @@ function setPassword(req, res, next) {
     let newPassword=req.body;
 
     let sql = `UPDATE users SET ? WHERE id= ?`;
-
+    //ToDo: Save hash of password
     connection.query(sql, [newPassword, id], function (err, data) {
     if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
     else { res.statusCode = 202; res.send("Password updated")}  });   

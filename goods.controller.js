@@ -4,7 +4,9 @@ const auth = require('./middleware/auth');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const mysql = require("mysql2");
-const config = require("./config.js")
+const config = require("./config.js");
+const agree = require("./fields.description.js");
+
 const connection = mysql.createConnection({
     host: config.db.host,
     user: config.db.user,
@@ -42,7 +44,7 @@ function create(req, res, next) {
         let updateData=req.body;
         updateData.id = uuidv4();
         let sql = `INSERT INTO goods SET ?`;
-        connection.query(sql, [updateData], function (err, data) { 
+        connection.query(sql, [agree('goods',updateData)], function (err, data) { 
             if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
             else { res.statusCode = 201; res.send("Goods created")}  });   
  
@@ -56,7 +58,7 @@ function update(req, res, next) {
         let updateData=req.body;
         updateData.id = ""; delete updateData.id;
         let sql = `UPDATE goods SET ? WHERE id= ?`;
-        connection.query(sql, [updateData, id], function (err, data) {
+        connection.query(sql, [agree('goods',updateData), id], function (err, data) {
             if (err)  {res.statusCode = 409; return res.send(err.sqlMessage)}
             else { res.statusCode = 201; res.send("Goods updated")}  });   
 
